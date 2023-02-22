@@ -44,14 +44,18 @@ app.post('/urls', (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: req.body.longURL };
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
 
 app.get("/u/:id", (req, res) => {
-  
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
+});
+
+app.post('/urls/:id/delete', (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect('/urls');
 });
 
 
