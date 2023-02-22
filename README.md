@@ -1,18 +1,18 @@
-#Tiny App project
+# Tiny App project
 
-###Goal
+### Goal
 This four-day project will have you building a web app using Node. The app will allow users to shorten long URLs much like TinyURL.com and bit.ly do.
 
 You will build an HTTP Server that handles requests from the browser (client). Along the way you'll get introduced to some more advanced JavaScript and Node concepts, and you'll also learn more about Express, a web framework which is very popular in the Node community.
 
-###Project Outcome
+### Project Outcome
 You will build a simple multipage app:
 
 with authentication protection
 that reacts appropriately to the user's logged-in state,
 and permits the user to create, read, update, and delete (CRUD) a simple entity (e.g. blog posts, URL shortener).
 
-###User Stories
+### User Stories
 As an avid twitter poster,
 I want to be able to shorten links
 so that I can fit more non-link text in my tweets.
@@ -25,9 +25,9 @@ so that I can read interesting content.
 I want to be able to see how many times my subscribers visit my links
 so that I can learn what content they like.
 
-###Project Requirements
+### Project Requirements
 
-###Additional Requirements
+### Additional Requirements
 Site Header:
 if a user is logged in, the header shows:
 the user's email
@@ -37,16 +37,16 @@ a link to the login page (/login)
 a link to the registration page (/register)
 
 
-###Route Checklist
+### Route Checklist
 
-*GET /
+* GET /
 
 if user is logged in:
 (Minor) redirect to /urls
 if user is not logged in:
 (Minor) redirect to /login
 
-*GET /urls
+* GET /urls
 
 if user is logged in:
 returns HTML with:
@@ -63,7 +63,7 @@ a delete button which makes a POST request to /urls/:id/delete
 if user is not logged in:
 returns HTML with a relevant error message
 
-*GET /urls/new
+* GET /urls/new
 
 if user is logged in:
 returns HTML with:
@@ -74,7 +74,7 @@ a submit button which makes a POST request to /urls
 if user is not logged in:
 redirects to the /login page
 
-*GET /urls/:id
+* GET /urls/:id
 
 if user is logged in and owns the URL for the given ID:
 returns HTML with:
@@ -93,7 +93,7 @@ returns HTML with a relevant error message
 if user is logged it but does not own the URL with the given ID:
 returns HTML with a relevant error message
 
-*GET /u/:id
+* GET /u/:id
 
 if URL for the given ID exists:
 redirects to the corresponding long URL
@@ -116,7 +116,7 @@ if user is not logged in:
 if user is logged it but does not own the URL for the given ID:
 (Minor) returns HTML with a relevant error message
 
-*POST /urls/:id/delete
+* POST /urls/:id/delete
 if user is logged in and owns the URL for the given ID:
 deletes the URL
 redirects to /urls
@@ -125,7 +125,7 @@ if user is not logged in:
 if user is logged it but does not own the URL for the given ID:
 (Minor) returns HTML with a relevant error message
 
-*GET /login
+* GET /login
 
 if user is logged in:
 (Minor) redirects to /urls
@@ -135,7 +135,7 @@ a form which contains:
 input fields for email and password
 submit button that makes a POST request to /login
 
-*GET /register
+* GET /register
 
 if user is logged in:
 (Minor) redirects to /urls
@@ -145,7 +145,7 @@ a form which contains:
 input fields for email and password
 a register button that makes a POST request to /register
 
-*POST /login
+* POST /login
 
 if email and password params match an existing user:
 sets a cookie
@@ -153,7 +153,7 @@ redirects to /urls
 if email and password params don't match an existing user:
 returns HTML with a relevant error message
 
-*POST /register
+* POST /register
 
 if email or password are empty:
 returns HTML with a relevant error message
@@ -165,7 +165,7 @@ encrypts the new user's password with bcrypt
 sets a cookie
 redirects to /urls
 
-*POST /logout
+* POST /logout
 
 deletes cookie
 redirects to /login
