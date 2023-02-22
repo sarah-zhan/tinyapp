@@ -17,57 +17,53 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-//browse
+//Homepage
 app.get("/", (req, res) => {
-  const templateVars = { urls: urlDatabase };
-  res.render("urls_index", templateVars);
+  res.redirect('/urls')
 });
 
+//Browse
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-//read
-
-//create
-app.get("/new", (req, res) => {
+//New
+app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-app.post("/new", (req, res) => {
-  const urlId = generateRandomString();
-  const longURL = req.body.longURL;
-  urlDatabase[urlId] = longURL;
-  res.redirect("/urls");
-});
-
+//show
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
 
+//CRUD-API
+//Create-post
+app.post("/urls/new", (req, res) => {
+  const urlId = generateRandomString();
+  const longURL = req.body.longURL;
+  urlDatabase[urlId] = longURL;
+  res.redirect("/urls");
+});
+//Read all
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+//Read one
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
-
-//edit
-app.get("/urls/edit/:id", (req, res) => {
-  const templateVars = {
-    id: req.params.id,
-    longURL: urlDatabase[req.params.id]
-  };
-  res.render("urls_edit", templateVars);
-});
-
-app.post("/urls/:id", (req, res) => {
+//Update-post
+app.post("/urls/:id/edit", (req, res) => {
   const id = req.params.id;
   const longURL = req.body.longURL;
   urlDatabase[id] = longURL;
   res.redirect("/urls");
 });
-
+//Delete-post
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect('/urls');

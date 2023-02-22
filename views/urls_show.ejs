@@ -20,6 +20,12 @@
             <%= id %>
           </a>
         </p>
+        <form action="/urls/<%= id %>/edit" method="post">
+          <h4>Edit</h4>
+          <label for="urlEdit">New URL</label>
+          <input id="urlEdit" type="text" value="<%= longURL %>" name="longURL">
+          <input type="submit" value="Submit">
+        </form>
       </div>
       <div class="card-footer text-muted"></div>
     </div>
