@@ -25,7 +25,12 @@ so that I can read interesting content.
 I want to be able to see how many times my subscribers visit my links
 so that I can learn what content they like.
 
-### Project Requirements
+### Project Requirements (Details in Compass)
+#### Problem Decomposition
+#### Code Organization
+#### Code Readability
+#### Functional Requirements
+#### Source Code Version Control
 
 ### Additional Requirements
 Site Header:
@@ -169,3 +174,12 @@ redirects to /urls
 
 deletes cookie
 redirects to /login
+
+
+### Acknowledgements
+
+This project is part of LighthouseLab Web dev course.
+
+### License
+
+This project is open source and available under the [MIT License](LICENSE).
