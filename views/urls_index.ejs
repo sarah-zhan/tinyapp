@@ -23,15 +23,16 @@
         </thead>
         <tbody>
           <% for (let id in urls) { %>
-            <tr>
-              <td>
-                <%= id %>
-              </td>
-              <td>
-                <%= urls[id] %>
-              </td>
-            </tr>
-            <% } %>
+            <% console.log(urls) %>
+              <tr>
+                <td>
+                  <%= id %>
+                </td>
+                <td>
+                  <%= urls[id] %>
+                </td>
+              </tr>
+              <% } %>
         </tbody>
       </table>
     </main>

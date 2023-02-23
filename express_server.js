@@ -92,7 +92,18 @@ app.get("/logout", (req, res) => {
 app.post("/login", (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
+
+  // if (!username || !password) {
+  //   return res.status(400).send('please provide a username AND password');
+  // }
+
   res.cookie("userid", username)
+  res.redirect("/urls");
+});
+
+app.post("/logout", (req, res) => {
+
+  res.clearCookie('userid');
   res.redirect("/urls");
 });
 

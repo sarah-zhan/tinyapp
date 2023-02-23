@@ -15,6 +15,11 @@
           <div>
             <%= username %>
           </div>
+          <div>
+            <form action="/logout" method="post">
+              <input id="button" type="submit" value="Logout">
+            </form>
+          </div>
           <%} else { %>
             <form action="/login" method="post">
               <input id="username" type="text" name="username" value="username">
