@@ -15,6 +15,17 @@ app.use(express.json());
 const generateRandomString = () => {
   return Math.random().toString(36).substring(2, 8);
 };
+
+// const getUserByEmail = () => {
+//   let foundUser = null;
+//   for (const userId in users) {
+//     const user = users[userId];
+//     if (user.email) {
+//       return true;
+//     }
+//   }
+//   return false;
+// };
   
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -176,6 +187,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send("The user already exists.");
   }
   
+  //need bcrypt
   res.cookie("user_id", user_id);
   res.redirect("/urls");
 });
