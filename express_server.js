@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
 
 //Browse
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { urls: urlDatabase, username: req.cookies["userid"] };
   res.render("urls_index", templateVars);
 });
 
@@ -41,6 +41,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
+
 
 //CRUD-API
 //Create-post
@@ -74,10 +75,12 @@ app.post("/urls/:id/delete", (req, res) => {
 
 
 //login
-// app.get("/login", (req, res) => {
-//   res.render("login");
-
-// });
+app.get("/login", (req, res) => {
+  const templateVars = {
+  username: req.cookies["username"],
+};
+  res.render("urls_index", templateVars);
+});
 
 //logout
 app.get("/logout", (req, res) => {
@@ -89,8 +92,7 @@ app.get("/logout", (req, res) => {
 app.post("/login", (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
-  
-  res.cookie("userid", "need to update later")
+  res.cookie("userid", username)
   res.redirect("/urls");
 });
 
