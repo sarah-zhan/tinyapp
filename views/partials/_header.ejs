@@ -11,20 +11,21 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
       <div class="navbar-nav">
-        <% if (user_id) {%>
+        <% if (user) {%>
           <div>
-            <%= user_id %>
+            <%= user.email %>
           </div>
           <div>
-            <form action="/logout" method="post">
-              <input id="button" type="submit" value="Logout">
+            <form action="/logout" method="get">
+              <button>Logout</button>
             </form>
           </div>
           <%} else { %>
-            <form action="/login" method="post">
-              <input id="user_id" type="email" name="user_id" value="email">
-              <input id="password" type="password" name="password" value="email">
-              <input id="button" type="submit" value="Login">
+            <form action="/login" method="get">
+              <button>Login</button>
+            </form>
+            <form action="/register" method="get">
+              <button>Register</button>
             </form>
             <% } %>
       </div>

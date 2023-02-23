@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const { request } = require("express");
 const express = require("express");
 const morgan = require("morgan");
@@ -35,18 +36,19 @@ const users = {
 
 //Homepage
 app.get("/", (req, res) => {
-  res.redirect('/urls')
+  res.redirect('/urls');
 });
 
 //Browse
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, user_id: req.cookies["user_id"] };
+  const templateVars = { urls: urlDatabase, user_id: req.cookies["user_id"], user: users[req.cookies["user_id"]] };
   res.render("urls_index", templateVars);
 });
 
 //New
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { urls: urlDatabase, user_id: req.cookies["user_id"], user: users[req.cookies["user_id"]] };
+  res.render("urls_new", templateVars);
 });
 
 //show
@@ -66,8 +68,8 @@ app.post("/urls/new", (req, res) => {
   const urlId = generateRandomString();
   const longURL = req.body.longURL;
   urlDatabase[urlId] = longURL;
-  urlDatabase[user_id] = req.cookies["user_id"];
-  res.redirect("/urls"); 
+  urlDatabase["user_id"] = req.cookies["user_id"];
+  res.redirect("/urls");
 });
 //Read all
 app.get("/urls.json", (req, res) => {
@@ -98,16 +100,17 @@ app.post("/urls/:id/delete", (req, res) => {
 
 //login
 app.get("/login", (req, res) => {
+  console.log('test');
   const templateVars = {
-  user_id: req.cookies["user_id"],
-};
-  res.render("urls_index", templateVars);
+    "user_id": req.cookies["user_id"],
+  };
+  res.render("login", templateVars);
 });
 
 //logout
 app.get("/logout", (req, res) => {
-  res.render("logout");
-
+  const templateVars = { urls: urlDatabase, "user_id": req.cookies["user_id"] };
+  res.render("login", templateVars);
 });
 
 //register
@@ -115,7 +118,7 @@ app.get("/register", (req, res) => {
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
-    user_id: req.cookies["user_id"]
+    "user_id": req.cookies["user_id"]
   };
   res.render('register', templateVars);
 });
@@ -126,10 +129,10 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   if (!email || !password) {
-    return res.status(400).send("please provide an email AND password");
+    return res.status(400).send("Please provide an email AND password");
   }
 
- let foundUser = null;
+  let foundUser = null;
   for (const userId in users) {
     const user = users[userId];
     if (user.email === email) {
@@ -137,43 +140,46 @@ app.post("/login", (req, res) => {
     }
   }
 
-  // did we NOT find a user
+  // cannot find a user
   if (!foundUser) {
     return res.status(400).send("no user found");
   }
 
   if (foundUser.password !== password) {
-    return res.status(400).send("passwords do not match.");
+    return res.status(403).send("passwords do not match.");
   }
-  res.cookie("user_id", email);
+  res.cookie("user_id", foundUser.id);
+  res.redirect("/urls");
+});
+
+
+app.post("/register", (req, res) => {
+  const user_id = generateRandomString();
+  users[user_id] = {};
+  users[user_id]["id"] = user_id;
+  users[user_id]["email"] = req.body.email;
+  users[user_id]["password"] = req.body.password;
+
+  let foundUser = null;
+  for (const user_id in users) {
+    const user = users[user_id];
+    if (user) {
+      foundUser = user;
+    }
+  }
+  
+  if (foundUser) {
+    return res.status(400).send("The user already exists.");
+  }
+  
+  res.cookie("user_id", user_id);
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
 
-  res.clearCookie("userid");
-  res.redirect("/urls");
-});
-
-app.post("/register", (req, res) => {   
-  users[user_id].id = generateRandomString();
-  users[user_id].email = req.cookies.email;
-  users[user_id].password = req.cookies.password;
-
-    let foundUser = null;
-  for (const user_id in users) {
-    const user = users[user_id]
-    if (user.email === email) {
-      foundUser = users[user_id];
-    }
-  }
-
-  if (foundUser) {
-    return res.status(400).send("The user already exists."); 
-  }
-
-  res.cookie("user_id", foundUser.id)
-  res.redirect("/urls")
+  res.clearCookie("user_id");
+  res.redirect("/login");
 });
 
 app.listen(PORT, () => {
