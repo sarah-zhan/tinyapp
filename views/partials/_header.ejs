@@ -13,7 +13,8 @@
       <div class="navbar-nav">
         <% if (user) {%>
           <div>
-            <%= user.email %>
+            <p>Logged in As: <%= user.email %>
+            </p>
           </div>
           <div>
             <form action="/logout" method="get">
