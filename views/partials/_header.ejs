@@ -11,9 +11,9 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
       <div class="navbar-nav">
-        <% if (username) {%>
+        <% if (user_id) {%>
           <div>
-            <%= username %>
+            <%= user_id %>
           </div>
           <div>
             <form action="/logout" method="post">
@@ -22,17 +22,12 @@
           </div>
           <%} else { %>
             <form action="/login" method="post">
-              <input id="username" type="text" name="username" value="username">
+              <input id="user_id" type="email" name="user_id" value="email">
+              <input id="password" type="password" name="password" value="email">
               <input id="button" type="submit" value="Login">
             </form>
             <% } %>
       </div>
     </div>
-    <form action="/" method="post">
-      <!-- <label for="username"></label> -->
-      <input id="username" type="text" name="username" value="username">
-      <label for="button"></label>
-      <input id="button" type="submit" value="Login">
-    </form>
   </nav>
 </header>
