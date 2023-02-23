@@ -52,9 +52,13 @@ app.post("/urls/new", (req, res) => {
   res.redirect("/urls");
 });
 //Read all
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
+// app.get("/urls.json", (req, res) => {
+//   res.json(urlDatabase);
+// });
+app.get("/urls", (req, res) => {
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], username: req.cookies["userid"] };
+  res.redirect("/urls")
+})
 //Read one
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
@@ -73,10 +77,6 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect('/urls');
 });
 
-// app.get("/login", (req, res) => {
-//   res.render("/urls");
-
-// });
 
 //login
 app.get("/login", (req, res) => {
@@ -92,11 +92,18 @@ app.get("/logout", (req, res) => {
 
 });
 
+//register
+app.get("/register", (req, res) => {
+
+  res.render('register');
+});
+
+
 //API
 app.post("/login", (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
-
+  console.log(req.body)
   // if (!username || !password) {
   //   return res.status(400).send('please provide a username AND password');
   // }
@@ -110,6 +117,7 @@ app.post("/logout", (req, res) => {
   res.clearCookie('userid');
   res.redirect("/urls");
 });
+
 
 
 app.listen(PORT, () => {
