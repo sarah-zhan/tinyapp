@@ -2,11 +2,14 @@ const { request } = require("express");
 const express = require("express");
 const morgan = require("morgan");
 const app = express();
+const cookieParser = require('cookie-parser');
 const PORT = 8080; // default port 8080
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
+app.use(cookieParser());
+app.use(express.json());
 
 const generateRandomString = () => {
   return Math.random().toString(36).substring(2, 8);
@@ -24,7 +27,7 @@ app.get("/", (req, res) => {
 
 //Browse
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { urls: urlDatabase, username: req.cookies["userid"] };
   res.render("urls_index", templateVars);
 });
 
@@ -38,6 +41,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
 });
+
 
 //CRUD-API
 //Create-post
@@ -74,11 +78,40 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // });
 
-// app.post("/login", (req, res) => {
-//   const username = res.cookie;
-//   res.send(username);
-//   res.redirect("/urls");
-// });
+//login
+app.get("/login", (req, res) => {
+  const templateVars = {
+  username: req.cookies["username"],
+};
+  res.render("urls_index", templateVars);
+});
+
+//logout
+app.get("/logout", (req, res) => {
+  res.render("logout");
+
+});
+
+//API
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+
+  // if (!username || !password) {
+  //   return res.status(400).send('please provide a username AND password');
+  // }
+
+  res.cookie("userid", username)
+  res.redirect("/urls");
+});
+
+app.post("/logout", (req, res) => {
+
+  res.clearCookie('userid');
+  res.redirect("/urls");
+});
+
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
