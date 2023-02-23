@@ -160,6 +160,10 @@ app.post("/register", (req, res) => {
   users[user_id]["email"] = req.body.email;
   users[user_id]["password"] = req.body.password;
 
+  if (!req.body.email || !req.body.password) {
+    return res.status(400).send("Please provide an email AND password");
+  }
+  
   let foundUser = null;
   for (const user_id in users) {
     const user = users[user_id];
