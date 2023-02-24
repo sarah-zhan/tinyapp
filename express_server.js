@@ -16,16 +16,16 @@ const generateRandomString = () => {
   return Math.random().toString(36).substring(2, 8);
 };
 
-// const getUserByEmail = () => {
-//   let foundUser = null;
-//   for (const userId in users) {
-//     const user = users[userId];
-//     if (user.email) {
-//       return true;
-//     }
-//   }
-//   return false;
-// };
+const getUserByEmail = (users) => {
+  let foundUser = null;
+  for (const userId in users) {
+    const user = users[userId];
+    if (user.email === users[userId]["email"]) {
+      foundUser = user;
+    }
+  }
+  return foundUser;
+};
   
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -59,7 +59,12 @@ app.get("/urls", (req, res) => {
 //New
 app.get("/urls/new", (req, res) => {
   const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
-  res.render("urls_new", templateVars);
+  if (!templateVars.user) {
+    res.redirect("/login");
+  } else {
+    res.render("urls_new", templateVars);
+  }
+
 });
 
 //show
@@ -90,6 +95,9 @@ app.get("/urls.json", (req, res) => {
 //Read one
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
+  if (!longURL) {
+    res.send("You need to log in to create new URL.");
+  }
   res.redirect(longURL);
 });
 //Update-post
@@ -108,7 +116,6 @@ app.post("/urls/:id/delete", (req, res) => {
 
 //login
 app.get("/login", (req, res) => {
-  console.log('test');
   const templateVars = {
     user: null,
   };
@@ -129,27 +136,18 @@ app.get("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+
   if (!email || !password) {
     return res.status(400).send("Please provide an email AND password");
   }
-
-  let foundUser = null;
-  for (const userId in users) {
-    const user = users[userId];
-    if (user.email === email) {
-      foundUser = user;
-    }
-  }
-
-  // cannot find a user
-  if (!foundUser) {
+  if (getUserByEmail(users).email !== email) {
     return res.status(403).send("no user found");
   }
-
-  if (foundUser.password !== password) {
+  if (getUserByEmail(users).password !== password) {
     return res.status(403).send("passwords do not match.");
   }
-  res.cookie("user_id", foundUser.id);
+
+  res.cookie("user_id", getUserByEmail(users).id);
   res.redirect("/urls");
 });
 
@@ -158,24 +156,17 @@ app.post("/register", (req, res) => {
   if (!req.body.email || !req.body.password) {
     return res.status(400).send("Please provide an email AND password");
   }
-  
-  let foundUser = null;
-  for (const user_id in users) {
-    const user = users[user_id];
-    if (user.email === req.body.email) {
-      foundUser = user;
-    }
-  }
-  console.log({ foundUser });
-  if (foundUser) {
+
+  if (getUserByEmail(users).id) {
     return res.status(400).send("The user already exists.");
   }
+
   const user_id = generateRandomString();
   users[user_id] = {};
   users[user_id]["id"] = user_id;
   users[user_id]["email"] = req.body.email;
   users[user_id]["password"] = req.body.password;
-  console.log({users});
+  
   
   //need bcrypt
   res.cookie("user_id", user_id);
@@ -187,6 +178,7 @@ app.get("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/login");
 });
+
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
