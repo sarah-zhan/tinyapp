@@ -5,7 +5,6 @@ const app = express();
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
 const { getUserByEmail, urlsForUser, generateRandomString } = require('./helpers');
-const e = require("express");
 const PORT = 8080;
 
 app.set('view engine', 'ejs');
@@ -113,12 +112,13 @@ app.get("/urls", (req, res) => {
 //Read one
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
-  const userId = req.session.user_id;
-  const user = users[userId];
+  const id = req.params.id;
+
   if (!longURL) {
-    res.send("You need to log in to create new URL.");
+    return res.send("You need to log in to create new URL.");
   }
-  res.redirect(longURL);
+  
+  res.redirect(`/urls/:${id}`);
 });
 //Update-post
 app.post("/urls/:id/edit", (req, res) => {
