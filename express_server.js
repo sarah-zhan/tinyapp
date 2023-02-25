@@ -5,6 +5,7 @@ const app = express();
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
 const { getUserByEmail, urlsForUser, generateRandomString } = require('./helpers');
+const e = require("express");
 const PORT = 8080;
 
 app.set('view engine', 'ejs');
@@ -187,10 +188,12 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = getUserByEmail(email, users);
-  console.log('user-postlogin', user);
   const correctPassword = bcrypt.compareSync(password, user.password);
 
-  if (!user || !email || correctPassword === false) {
+  if (!email || !password) {
+    return res.status(400).send("Email or password not match. <a href='/login'>Try again!</a>");
+  }
+  if (correctPassword === false) {
     return res.status(400).send("Bad email or password. <a href='/login'>Try again!</a>");
   }
 
@@ -224,7 +227,7 @@ app.post("/register", (req, res) => {
 
 app.post("/logout", (req, res) => {
   res.session = null;
-  res.redirect("login");
+  res.redirect("/login");
 });
 
 
@@ -232,3 +235,4 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+module.exports = urlDatabase;
