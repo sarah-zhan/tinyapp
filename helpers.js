@@ -1,4 +1,4 @@
-const urlDatabase = require('./express_server');
+
 
 const getUserByEmail = (email, users) => {
   const userValues = Object.values(users);
@@ -11,7 +11,7 @@ const getUserByEmail = (email, users) => {
   
 };
 
-const urlsForUser = (userId) => {
+const urlsForUser = (userId, urlDatabase) => {
   const urls = {};
   const ids = Object.keys(urlDatabase);
   for (const id of ids) {

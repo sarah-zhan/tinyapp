@@ -2,14 +2,14 @@
 const express = require("express");
 const morgan = require("morgan");
 const app = express();
-const cookieSession = require('cookie-session');
+const cookieSession = require("cookie-session");
 const bcrypt = require("bcryptjs");
-const { getUserByEmail, urlsForUser, generateRandomString } = require('./helpers');
+const { getUserByEmail, urlsForUser, generateRandomString } = require("./helpers");
 const PORT = 8080;
 
-app.set('view engine', 'ejs');
+app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 app.use(cookieSession({
   name: "cookiemonster",
   keys: ["thisisveryfunnyhahahahahaha", "nosleep"]
@@ -28,15 +28,15 @@ const urlDatabase = {
 };
 
 const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "123",
+  u1czze: {
+    id: "u1czze",
+    email: "asdfg@gmail.com",
+    password: "$2a$10$tZtmzd79NimrFqCcm5PdcegVuA1hn93eIDyfQmAyKIs025n82h4T6",
   },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "456",
+  iup9ea: {
+    id: "iup9ea",
+    email: "user@example.com",
+    password: "$2a$10$qHw0E3z4K6f8V/bEexlNke81IpWlPqkTuz9qxvsKLiVDk/aFIUx3G",
   },
 };
 
@@ -50,10 +50,10 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const userId = req.session.user_id;
   const user = users[userId];
-  const urls = urlsForUser(userId);
+  const urls = urlsForUser(userId, urlDatabase);
   const templateVars = { urls, user };
   if (!user) {
-    return res.status(302).send("Not logged in!! <a href='/login'>Please Log in!</a>");
+    return res.status(403).send("Not logged in!! <a href='/login'>Please Log in!</a>");
   }
 
   res.render("urls_index", templateVars);
@@ -87,38 +87,33 @@ app.get("/urls/:id", (req, res) => {
     return res.send("Please log in.");
   }
   
-  if (!urlsForUser(userId)) {
-    return res.send("You don't own this URL.");
-  }
-
   res.render("urls_show", templateVars);
 });
 
 
-//CRUD-API
-//Create-post
-app.post("/urls/new", (req, res) => {
-  const urlId = generateRandomString();
-  const longURL = req.body.longURL;
-  urlDatabase[urlId] = { longURL, userID: req.session.user_id };
-
-  res.redirect("/urls");
-});
 //Read all
-app.get("/urls", (req, res) => {
-  res.json(urlDatabase);
+app.post("/urls", (req, res) => {
+  const urlId = generateRandomString();
+  const userID = req.session.user_id;
+  const user = users[userID];
+
+  if (!user) {
+    return res.send("Please log in.");
+  }
+  const longURL = req.body.longURL;
+  urlDatabase[urlId] = { longURL, userID };
+  res.redirect("/urls",);
 });
 
-//Read one
+//short url
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
-  const id = req.params.id;
+  const urlObject = urlDatabase[req.params.id];
 
-  if (!longURL) {
+  if (!urlObject) {
     return res.send("You need to log in to create new URL.");
   }
   
-  res.redirect(`/urls/:${id}`);
+  res.redirect(urlObject.longURL);
 });
 //Update-post
 app.post("/urls/:id/edit", (req, res) => {
@@ -130,9 +125,7 @@ app.post("/urls/:id/edit", (req, res) => {
   if (!user) {
     return res.send("You need to log in.");
   }
-  if (!urlsForUser(id)) {
-    return res.send("You don't own this URL.");
-  }
+
   if (!urlDatabase[id]) {
     return res.send("URL does not exit!");
   }
@@ -148,14 +141,11 @@ app.post("/urls/:id/delete", (req, res) => {
   if (!user) {
     return res.send("You need to log in to delete a post. <a href='/login'>Log in!</a>");
   }
-  if (!urlsForUser(id)) {
-    return res.send("You don't own this URL.");
-  }
   if (!urlDatabase[id]) {
     return res.send("URL does not exit!");
   }
-  if (urlDatabase.id.userID !== userId) {
-    return res.send("You");
+  if (urlDatabase[id].userID !== userId) {
+    return res.send("You dont own this URL.");
   }
  
   delete urlDatabase[id];
@@ -188,6 +178,9 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = getUserByEmail(email, users);
+  if (!user) {
+    return res.status(400).send("User not found. <a href='/login'>Try again!</a>");
+  }
   const correctPassword = bcrypt.compareSync(password, user.password);
 
   if (!email || !password) {
@@ -220,13 +213,15 @@ app.post("/register", (req, res) => {
     email,
     password: hashPassword,
   };
+  console.log(newUser);
   users[id] = newUser;
+  req.session.user_id = id;
   res.redirect("/login");
 });
 
 
 app.post("/logout", (req, res) => {
-  res.session = null;
+  req.session = null;
   res.redirect("/login");
 });
 
