@@ -4,6 +4,7 @@ const express = require("express");
 const morgan = require("morgan");
 const app = express();
 const cookieParser = require('cookie-parser');
+const bcrypt = require("bcryptjs");
 const PORT = 8080;
 
 app.set('view engine', 'ejs');
@@ -211,8 +212,15 @@ app.post("/login", (req, res) => {
     return res.status(302).send("Bad email or password");
   }
 
-  res.cookie("user_id", user.id);
-  res.redirect("/urls");
+  bcrypt.compare(password, user.password)
+    .then((result) => {
+      if (result) {
+        res.cookie('user_id', user.id);
+        res.redirect('/urls');
+      } else {
+        return res.status(401).send('Password incorrect');
+      }
+    });
 });
 
 
@@ -229,11 +237,21 @@ app.post("/register", (req, res) => {
     return res.status(400).send("The user already exists.");
   }
   
-  
-  //need bcrypt
-  res.cookie("user_id", user.id);
-  res.redirect("/urls");
+  bcrypt.genSalt(10)
+    .then((salt) => {
+      return bcrypt.hash(password, salt);
+    })
+    .then((hash) => {
+      users[id] = {
+        id,
+        email,
+        password: hash
+      };
+      console.log(users);
+      res.redirect('/urls');
+    });
 });
+  
 
 app.get("/logout", (req, res) => {
 
