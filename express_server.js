@@ -17,27 +17,7 @@ const generateRandomString = () => {
   return Math.random().toString(36).substring(2, 8);
 };
 
-const getUserByEmail = (email) => {
-  for (const id in users) {
-    const user = users[id];
-    if (user.email === email) {
-      return user;
-    }
-  }
-};
 
-const urlsForUser = (userId) => {
-  const urls = {};
-  const ids = Object.keys(urlDatabase);
-  for (const id of ids) {
-    const url = urlDatabase[id];
-    if (url.userID === userId) {
-      urls[id] = url;
-    }
-  }
-  return urls;
-};
-  
 const urlDatabase = {
   b6UTxQ: {
     longURL: "https://www.tsn.ca",
@@ -62,6 +42,27 @@ const users = {
   },
 };
 
+const getUserByEmail = (email) => {
+  for (const id in users) {
+    const user = users[id];
+    if (user.email === email) {
+      return user;
+    }
+  }
+};
+
+const urlsForUser = (userId) => {
+  const urls = {};
+  const ids = Object.keys(urlDatabase);
+  for (const id of ids) {
+    const url = urlDatabase[id];
+    if (url.userID === userId) {
+      urls[id] = url;
+    }
+  }
+  return urls;
+};
+
 //Homepage
 app.get("/", (req, res) => {
   res.redirect('/urls');
@@ -71,7 +72,7 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const userId = req.cookies.user_id;
   const user = users[userId];
-  const urls = urlsForUser(user.id);
+  const urls = urlsForUser(userId);
   const templateVars = { urls, user };
   if (!user) {
     return res.status(302).send("Not logged in!!");
@@ -207,28 +208,23 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const user = getUserByEmail(email);
+  const correctPassword = bcrypt.compareSync(password, user.password);
 
-  if (!user || password !== user.password) {
-    return res.status(302).send("Bad email or password");
+
+  if (!user || correctPassword === false) {
+    return res.status(400).send("Bad email or password");
+
   }
 
-  bcrypt.compare(password, user.password)
-    .then((result) => {
-      if (result) {
-        res.cookie('user_id', user.id);
-        res.redirect('/urls');
-      } else {
-        return res.status(401).send('Password incorrect');
-      }
-    });
+  res.cookie("user_id", user.id);
+  res.redirect("/urls");
 });
 
-
 app.post("/register", (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
   const id = generateRandomString();
-  const user = { id, email, password };
+  const { password, email } = req.body;
+  const user = getUserByEmail(email);
+
   if (!email || !password) {
     return res.status(400).send("Please provide an email AND password");
   }
@@ -236,22 +232,17 @@ app.post("/register", (req, res) => {
   if (getUserByEmail(email)) {
     return res.status(400).send("The user already exists.");
   }
-  
-  bcrypt.genSalt(10)
-    .then((salt) => {
-      return bcrypt.hash(password, salt);
-    })
-    .then((hash) => {
-      users[id] = {
-        id,
-        email,
-        password: hash
-      };
-      console.log(users);
-      res.redirect('/urls');
-    });
+
+  const hashPassword = bcrypt.hashSync(password, 10);
+  const newUser = {
+    id,
+    email,
+    password: hashPassword,
+  };
+  users[id] = newUser;
+  res.redirect("/login");
 });
-  
+
 
 app.get("/logout", (req, res) => {
 
