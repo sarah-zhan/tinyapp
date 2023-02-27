@@ -20,7 +20,7 @@
             <%= id %>
           </a>
         </p>
-        <form action="/urls/<%= id %>/edit" method="post">
+        <form action="/urls/<%= id %>" method="post">
           <h4>Edit</h4>
           <label for="urlEdit">New URL</label>
           <input id="urlEdit" type="text" value="<%= longURL %>" name="longURL">

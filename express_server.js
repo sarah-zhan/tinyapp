@@ -50,20 +50,29 @@ app.get("/urls/new", (req, res) => {
 });
 
 //show
+//Major: - GET /urls/:id - If the logged in user does not own the URL,
+//show relevant HTML error message.Currently your app not only shows the user the edit screen.
 app.get("/urls/:id", (req, res) => {
   const id = req.params.id;
   const userId = req.session.user_id;
-  const user = users[userId];
-  const templateVars = {
-    id: req.params.id,
-    longURL: urlDatabase[id]["longURL"],
-    user: users[req.session.user_id]
-  };
 
+  const user = users[userId];
   if (!user) {
     return res.send("Please log in.");
   }
-  
+  const url = urlDatabase[id];
+  if (!url) {
+    return res.send("URL not exist.");
+  }
+  if (url.userID !== userId) {
+    return res.send("You dont own this URL.");
+  }
+    
+  const templateVars = {
+    id,
+    longURL: url.longURL,
+    user
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -92,8 +101,10 @@ app.get("/u/:id", (req, res) => {
   
   res.redirect(urlObject.longURL);
 });
+
 //Update-post
-app.post("/urls/:id/edit", (req, res) => {
+// POST /urls/:id
+app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   const longURL = req.body.longURL;
   const userId = req.session.user_id;
@@ -103,12 +114,18 @@ app.post("/urls/:id/edit", (req, res) => {
     return res.send("You need to log in.");
   }
 
-  if (!urlDatabase[id]) {
-    return res.send("URL does not exit!");
+  const url = urlDatabase[id];
+  if (!url) {
+    return res.send("URL not exist.");
   }
+  if (url.userID !== userId) {
+    return res.send("You dont own this URL.");
+  }
+
   urlDatabase[id].longURL = longURL;
   res.redirect("/urls");
 });
+
 //Delete-post
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
@@ -190,7 +207,6 @@ app.post("/register", (req, res) => {
     email,
     password: hashPassword,
   };
-  console.log(newUser);
   users[id] = newUser;
   req.session.user_id = id;
   res.redirect("/login");
